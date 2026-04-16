@@ -16,102 +16,103 @@ import java.util.List;
 @Transactional
 public class CustomerService {
 
-
-
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
-    
+
     public CustomerService(CustomerRepository customerRepository, CustomerMapper customerMapper) {
         this.customerRepository = customerRepository;
         this.customerMapper = customerMapper;
     }
-    
-    /**
-     * Cria um novo cliente
-     */
+
+
+    // CREATE
     public CustomerDTO createCustomer(CreateCustomerDTO dto) {
-        // Validar CPF duplicado
+
         if (customerRepository.existsByCpf(dto.getCpf())) {
             throw new IllegalArgumentException("CPF já cadastrado no sistema");
         }
-        
-        Customer customer = customerMapper.convertToEntity(dto);
-        Customer savedCustomer = customerRepository.save(customer);
-        return customerMapper.convertToBasicDTO(savedCustomer);
+
+        Customer customer = customerMapper.toEntity(dto);
+        Customer savedCustomer = customerRepository.save(customer); // ✅ usa savedCustomer com id gerado
+
+        return customerMapper.toDTO(savedCustomer);
     }
-    
-    /**
-     * Busca um cliente por ID
-     */
+
+
+    // READ — buscar por ID
     @Transactional(readOnly = true)
     public CustomerDTO findById(Long id) {
+
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com ID: " + id));
-        return customerMapper.convertToBasicDTO(customer);
+
+        return customerMapper.toDTO(customer);
     }
-    
-    /**
-     * Busca detalhes completos de um cliente (com histórico de compras)
-     */
+
+
+    // READ — detalhes por ID
     @Transactional(readOnly = true)
     public CustomerDetailDTO findDetailById(Long id) {
+
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com ID: " + id));
-        return customerMapper.convertToDetailDTO(customer);
+
+        return customerMapper.toDetailDTO(customer);
     }
-    
-    /**
-     * Lista todos os clientes
-     */
+
+
+    // READ — listar todos
     @Transactional(readOnly = true)
     public List<CustomerDTO> findAll() {
+
         List<Customer> customers = customerRepository.findAll();
-        return customerMapper.convertToBasicDTOList(customers);
+
+        return customerMapper.toDTOList(customers);
     }
-    
-    /**
-     * Atualiza dados de um cliente
-     */
+
+
+    // READ — buscar por CPF
+    @Transactional(readOnly = true)
+    public CustomerDTO findByCpf(String cpf) {
+
+        Customer customer = customerRepository.findByCpf(cpf)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com CPF: " + cpf));
+
+        return customerMapper.toDTO(customer);
+    }
+
+
+    // UPDATE
     public CustomerDTO update(Long id, CreateCustomerDTO dto) {
+
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com ID: " + id));
-        
-        // Validar CPF duplicado (se foi alterado)
-        if (!customer.getCpf().equals(dto.getCpf()) && 
-            customerRepository.existsByCpf(dto.getCpf())) {
+
+        if (!customer.getCpf().equals(dto.getCpf()) &&
+                customerRepository.existsByCpf(dto.getCpf())) {
             throw new IllegalArgumentException("CPF já cadastrado no sistema");
         }
-        
+
         customer.setName(dto.getName());
         customer.setCpf(dto.getCpf());
-        
+
         Customer updatedCustomer = customerRepository.save(customer);
-        return customerMapper.convertToBasicDTO(updatedCustomer);
+
+        return customerMapper.toDTO(updatedCustomer);
     }
-    
-    /**
-     * Deleta um cliente
-     */
+
+
+    // DELETE
     public void delete(Long id) {
+
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com ID: " + id));
-        
-        // Validar se o cliente tem vendas
+
         if (!customer.getPurchaseHistory().isEmpty()) {
             throw new IllegalStateException("Não é possível deletar cliente com histórico de compras");
         }
-        
+
         customerRepository.delete(customer);
     }
-    
-    /**
-     * Busca cliente por CPF
-     */
-    @Transactional(readOnly = true)
-    public CustomerDTO findByCpf(String cpf) {
-        Customer customer = customerRepository.findByCpf(cpf)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com CPF: " + cpf));
-        return customerMapper.convertToBasicDTO(customer);
-    }
-}
 
+}

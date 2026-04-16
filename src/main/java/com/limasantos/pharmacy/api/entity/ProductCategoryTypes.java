@@ -1,6 +1,7 @@
 package com.limasantos.pharmacy.api.entity;
 
 public enum ProductCategoryTypes {
+
     // CORREÇÃO: Todos os itens na lista, separados por vírgula
     MEDICAMENTOS("Medicamentos"),
     GENERICOS("Genéricos"),
@@ -11,6 +12,7 @@ public enum ProductCategoryTypes {
     DERMOCOSMETICOS("Dermocosméticos"),
     SAUDE_SEXUAL("Saúde Sexual"), // Adicionado corretamente
     SUPLEMENTOS("Suplementos e Vitaminas"); // Ponto e vírgula vai aqui, no final da lista
+
 
     private final String displayName;
 

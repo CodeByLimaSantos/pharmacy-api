@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class FinancialSummaryDTO {
+
     private FinancialType type;
 
     // Resumo geral

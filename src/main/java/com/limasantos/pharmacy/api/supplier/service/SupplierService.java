@@ -23,54 +23,72 @@ public class SupplierService {
         this.supplierRepository = supplierRepository;
         this.supplierMapper = supplierMapper;
     }
-    
-    /**
-     * Cria um novo fornecedor
-     */
+
+
+
+
+    // CREATE
     public SupplierDTO createSupplier(CreateSupplierDTO dto) {
+
         // Validar CNPJ duplicado
         if (supplierRepository.existsByCnpj(dto.getCnpj())) {
             throw new IllegalArgumentException("CNPJ já cadastrado no sistema");
         }
         
-        Supplier supplier = supplierMapper.convertToEntity(dto);
+        Supplier supplier = supplierMapper.toEntity(dto);
         Supplier savedSupplier = supplierRepository.save(supplier);
-        return supplierMapper.convertToBasicDTO(savedSupplier);
+        return supplierMapper.toDTO(savedSupplier);
     }
-    
-    /**
-     * Busca um fornecedor por ID
-     */
+
+
+
+
+
+    //SEARCH BY ID
     @Transactional(readOnly = true)
     public SupplierDTO findById(Long id) {
+
         Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Fornecedor não encontrado com ID: " + id));
-        return supplierMapper.convertToBasicDTO(supplier);
+
+        return supplierMapper.toDTO(supplier);
+
+
     }
     
-    /**
-     * Busca detalhes completos de um fornecedor (com lista de produtos)
-     */
+   //SEARCH DETAIL BY ID
     @Transactional(readOnly = true)
     public SupplierDetailDTO findDetailById(Long id) {
+
         Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Fornecedor não encontrado com ID: " + id));
-        return supplierMapper.convertToDetailDTO(supplier);
+
+
+
+        return supplierMapper.toDetailDTO(supplier);
     }
     
-    /**
-     * Lista todos os fornecedores
-     */
+
+
+    //SHOW ALL
     @Transactional(readOnly = true)
     public List<SupplierDTO> findAll() {
+
         List<Supplier> suppliers = supplierRepository.findAll();
-        return supplierMapper.convertToBasicDTOList(suppliers);
+
+        return supplierMapper.toDTOList(suppliers);
+
+
+
     }
     
-    /**
-     * Atualiza dados de um fornecedor
-     */
+
+
+
+
+    //UPDATE
     public SupplierDTO update(Long id, CreateSupplierDTO dto) {
+
         Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Fornecedor não encontrado com ID: " + id));
         
@@ -82,12 +100,16 @@ public class SupplierService {
         supplier.setPhone(dto.getPhone());
         
         Supplier updatedSupplier = supplierRepository.save(supplier);
-        return supplierMapper.convertToBasicDTO(updatedSupplier);
+
+        return supplierMapper.toDTO(updatedSupplier);
+
+
+
     }
     
-    /**
-     * Deleta um fornecedor
-     */
+
+
+    //DELETE
     public void delete(Long id) {
         Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Fornecedor não encontrado com ID: " + id));
@@ -100,14 +122,18 @@ public class SupplierService {
         supplierRepository.delete(supplier);
     }
     
-    /**
-     * Busca fornecedor por CNPJ
-     */
+
+   //SHOW SUPPLIER BY CNPJ
     @Transactional(readOnly = true)
     public SupplierDTO findByCnpj(String cnpj) {
+
         Supplier supplier = supplierRepository.findByCnpj(cnpj)
                 .orElseThrow(() -> new ResourceNotFoundException("Fornecedor não encontrado com CNPJ: " + cnpj));
+
+
         return supplierMapper.toDTO(supplier);
+
+
     }
 }
 
