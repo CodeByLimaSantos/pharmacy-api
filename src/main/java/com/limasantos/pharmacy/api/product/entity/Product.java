@@ -35,6 +35,7 @@ public class Product {
     @Column(nullable = false)
     @PositiveOrZero
     private BigDecimal priceCost;
+
     @Column(nullable = false)
     @PositiveOrZero
     private BigDecimal priceSale;
@@ -42,6 +43,7 @@ public class Product {
     @Column(nullable = false)
     @NotNull(message = "É necessário indicar se o produto é controlado.")
     private Boolean controlled;
+
     @Column(nullable = false)
     @NotBlank
     private String tarja;
@@ -56,12 +58,9 @@ public class Product {
     @NotNull(message = "A categoria do produto é obrigatória.")
     private ProductCategoryTypes productCategoryType;
 
-
-    @ManyToOne
-    @JoinColumn(name = "supplier_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "supplier_id", nullable = false)
     @NotNull
     private Supplier supplier;
-
-
 
 }

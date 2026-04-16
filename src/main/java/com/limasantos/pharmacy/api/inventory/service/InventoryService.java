@@ -1,9 +1,12 @@
 package com.limasantos.pharmacy.api.inventory.service;
 
+import com.limasantos.pharmacy.api.inventory.dto.CreateInventoryLotDTO;
+import com.limasantos.pharmacy.api.inventory.dto.InventoryLotDTO;
 import com.limasantos.pharmacy.api.inventory.entity.InventoryLot;
 import com.limasantos.pharmacy.api.inventory.entity.InventoryMovements;
 import com.limasantos.pharmacy.api.inventory.repository.InventoryLotRepository;
 import com.limasantos.pharmacy.api.inventory.repository.InventoryMovementRepository;
+import com.limasantos.pharmacy.api.product.entity.Product;
 import com.limasantos.pharmacy.api.shared.enums.MovementType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,8 @@ public class InventoryService {
     private final InventoryLotRepository lotRepository;
     private final InventoryMovementRepository movementRepository;
     private final com.limasantos.pharmacy.api.product.repository.ProductRepository productRepository;
+    private final com.limasantos.pharmacy.api.inventory.mapper.InventoryLotMapper inventoryLotMapper;
+    private final com.limasantos.pharmacy.api.inventory.mapper.InventoryMovementMapper inventoryMovementMapper;
 
 
 
@@ -453,5 +458,22 @@ public class InventoryService {
     @Transactional(readOnly = true)
     public List<InventoryMovements> findMovementsWithReason() {
         return movementRepository.findByReasonIsNotNull();
+    }
+
+    /**
+     * Cria um novo lote de inventário e registra a entrada inicial.
+     */
+    @Transactional
+    public InventoryLotDTO createLot(CreateInventoryLotDTO dto) {
+        Product product = productRepository.findById(dto.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + dto.getProductId()));
+
+        InventoryLot lot = inventoryLotMapper.toEntity(dto, product);
+        InventoryLot savedLot = lotRepository.save(lot);
+
+        // Registrar entrada inicial do lote
+        registerEntry(savedLot, dto.getQuantity());
+
+        return inventoryLotMapper.toDTO(savedLot);
     }
 }

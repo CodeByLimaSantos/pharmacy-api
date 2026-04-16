@@ -1,0 +1,43 @@
+<div class="dashboard-form-container">
+  <mat-toolbar color="primary">
+    <span>{{ isEditMode ? 'Edit Dashboard Item' : 'Create Dashboard Item' }}</span>
+    <span class="spacer"></span>
+    <button mat-button color="warn" (click)="onCancel()">
+      <mat-icon>close</mat-icon>
+      Cancel
+    </button>
+  </mat-toolbar>
+
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="dashboardForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name" placeholder="Enter name">
+          <mat-error *ngIf="dashboardForm.get('name')?.hasError('required')">
+            Name is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description" placeholder="Enter description"></textarea>
+          <mat-error *ngIf="dashboardForm.get('description')?.hasError('required')">
+            Description is required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Add additional form fields as needed for your dashboard entity -->
+
+        <div class="form-actions">
+          <button mat-button type="button" color="warn" (click)="onCancel()">
+            Cancel
+          </button>
+          <button mat-flat-button type="submit" color="primary" [disabled]="dashboardForm.invalid">
+            {{ isEditMode ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

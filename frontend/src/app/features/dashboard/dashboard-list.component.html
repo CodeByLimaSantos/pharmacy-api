@@ -1,0 +1,69 @@
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <h1>Dashboard Overview</h1>
+    <div class="header-actions">
+      <button mat-button color="primary" routerLink="/dashboard/create">
+        <mat-icon>add</mat-icon>
+        New Dashboard Item
+      </button>
+    </div>
+  </header>
+
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-header>
+        <div mat-card-avatar class="customers-icon">👥</div>
+        <mat-card-title>Total Customers</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-value">{{ stats.totalCustomers }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-header>
+        <div mat-card-avatar class="products-icon">📦</div>
+        <mat-card-title>Total Products</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-value">{{ stats.totalProducts }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-header>
+        <div mat-card-avatar class="sales-icon">💰</div>
+        <mat-card-title>Total Sales</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-value">{{ stats.totalSales }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-header>
+        <div mat-card-avatar class="suppliers-icon">🚚</div>
+        <mat-card-title>Total Suppliers</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-value">{{ stats.totalSuppliers }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-header>
+        <div mat-card-avatar class="financial-icon">📊</div>
+        <mat-card-title>Financial Overview</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-value">{{ stats.totalFinancial }}</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="recent-activity">
+    <h2>Recent Activity</h2>
+    <!-- Placeholder for recent activity table or list -->
+    <p class="placeholder-text">Recent activity will be displayed here</p>
+  </div>
+</div>

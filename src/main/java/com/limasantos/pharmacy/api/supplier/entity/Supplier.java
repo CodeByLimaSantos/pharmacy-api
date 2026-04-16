@@ -23,7 +23,7 @@ import java.util.List;
 public class Supplier {
 
     @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
@@ -39,13 +39,9 @@ public class Supplier {
     @Pattern(regexp = "\\d{10,11}", message = "Telefone deve conter 10 ou 11 dígitos numéricos")
     private String phone;
 
-    // ==================== RELACIONAMENTO REVERSO ====================
-    // Um fornecedor tem muitos produtos
-    // mappedBy = "supplier" indica que Product é dona do relacionamento
-    // cascade = CascadeType.ALL: operações no supplier (deletar) afetam seus produtos
-    // orphanRemoval = true: se um produto for removido, ele é deletado do banco
-    // fetch = FetchType.LAZY: carrega produtos sob demanda (melhor performance)
-    @OneToMany(mappedBy = "com/limasantos/pharmacy/api/supplier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+
+
+    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Product> products = new ArrayList<>();
 
 }

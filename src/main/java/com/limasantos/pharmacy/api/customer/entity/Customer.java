@@ -37,7 +37,7 @@ public class Customer {
     // mappedBy = "customer" indica que a entidade 'Sale' é a dona do relacionamento
     // cascade = CascadeType.ALL: operações no cliente (salvar, deletar) afetam suas vendas
     // orphanRemoval = true: se uma venda for removida desta lista, ela é deletada do banco
-    @OneToMany(mappedBy = "com/limasantos/pharmacy/api/customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Sale> purchaseHistory = new ArrayList<>();
 
 }

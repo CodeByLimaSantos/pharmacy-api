@@ -22,45 +22,39 @@ import java.util.List;
 
 public class Sale {
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "customer_id", nullable = true)
-        private Customer customer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = true)
+    private Customer customer;
 
-        @Column(nullable = false, updatable = false)
-        private LocalDateTime saleDate;
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime saleDate;
 
+    @Column(nullable = false)
+    private BigDecimal totalAmount = BigDecimal.ZERO;
 
-        @Column(nullable = false)
-        private BigDecimal totalAmount = BigDecimal.ZERO;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentMethod paymentMethod;
 
-        @Enumerated(EnumType.STRING)
-        @Column(nullable = false)
-        private PaymentMethod paymentMethod;
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SaleItem> items = new ArrayList<>();
 
-        //puxa do sale item para criar o arraylist de itens da venda, cascade all salvar venda salva os itens,
-        // orphan removal true se remover um item da venda ele é deletado do banco
-        @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<SaleItem> items = new ArrayList<>();
+    @PrePersist
+    public void prePersist() {
+        this.saleDate = LocalDateTime.now();
+    }
 
-        @PrePersist
-        public void prePersist() {
-                this.saleDate = LocalDateTime.now();
-        }
-
-        //  Método para adicionar item
-        public void addItem(SaleItem item) {
-            item.setSale(this);
-            this.items.add(item);
-            recalcularTotal();
-        }
-
+    public void addItem(SaleItem item) {
+        item.setSale(this);
+        this.items.add(item);
+        recalcularTotal();
+    }
 
     public void removeItem(SaleItem item) {
-
         if (item == null) {
             throw new IllegalArgumentException("Item não pode ser nulo");
         }
@@ -74,13 +68,10 @@ public class Sale {
         recalcularTotal();
     }
 
-        //  Regra de negócio: total sempre calculado
-        private void recalcularTotal() {
-            this.totalAmount = items.stream()
-                    .map(i -> i.getPriceAtSale().multiply(BigDecimal.valueOf(i.getQuantity())))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-        }
-
-
+    private void recalcularTotal() {
+        this.totalAmount = items.stream()
+                .map(i -> i.getPriceAtSale().multiply(BigDecimal.valueOf(i.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
 }
