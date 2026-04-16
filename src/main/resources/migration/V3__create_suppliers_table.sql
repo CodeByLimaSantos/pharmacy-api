@@ -1,0 +1,11 @@
+CREATE TABLE tb_suppliers (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    cnpj VARCHAR(18) NOT NULL UNIQUE,
+
+    email VARCHAR(255),
+
+    name VARCHAR(255) NOT NULL,
+
+    phone VARCHAR(20)
+);
