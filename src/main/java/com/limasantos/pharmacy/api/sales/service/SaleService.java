@@ -76,11 +76,11 @@ public class SaleService {
             Product product = productRepository.findById(itemDTO.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + itemDTO.getProductId()));
 
-            // Validar estoque
+            // Validate stock
             Integer availableStock = inventoryService.calculateProductStock(product.getId());
             if (itemDTO.getQuantity() > availableStock) {
                 throw new IllegalStateException(
-                        String.format("Estoque insuficiente para produto %s. Disponível: %d, Solicitado: %d",
+                        String.format("Insufficient stock for product %s. Available: %d, Requested: %d",
                                 product.getName(), availableStock, itemDTO.getQuantity()));
             }
 
@@ -92,8 +92,8 @@ public class SaleService {
 
             sale.addItem(saleItem);
 
-            // Registrar saída de estoque
-            inventoryService.registerSaleExit(product.getId(), itemDTO.getQuantity());
+            // Register stock exit
+            inventoryService.registerSaleExitByProduct(product.getId(), itemDTO.getQuantity());
         }
 
         Sale savedSale = saleRepository.save(sale);

@@ -22,18 +22,22 @@ public class InventoryService {
     private final InventoryMovementRepository movementRepository;
     private final com.limasantos.pharmacy.api.product.repository.ProductRepository productRepository;
 
-    // ==========================================
+
+
     // REGISTRO DE MOVIMENTAÇÕES
-    // ==========================================
 
 
+     //CREATE Registers an inventory entry movement for a specific lot.
     @Transactional
-    public InventoryMovements registrarEntrada(InventoryLot lot, Integer quantidade) {
-        if (quantidade <= 0) {
-            throw new IllegalArgumentException("Quantidade de entrada deve ser positiva");
+    public InventoryMovements registerEntry(InventoryLot lot, Integer quantity) {
+
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Entry quantity must be positive");
+
+
         }
 
-        // Salva o lote se for novo
+        // Save the lot if it's new
         if (lot.getId() == null) {
             lotRepository.save(lot);
         }
@@ -41,103 +45,160 @@ public class InventoryService {
         InventoryMovements movement = new InventoryMovements();
         movement.setInventoryLot(lot);
         movement.setMovementType(MovementType.ENTRY);
-        movement.setQuantity(quantidade);
+        movement.setQuantity(quantity);
 
         return movementRepository.save(movement);
+
+
     }
 
-    /**
-     * Registra saída por venda.
-     * Usa estratégia FEFO (First Expire, First Out) para selecionar o lote.
-     */
+
+    // Legacy method for backward compatibility
     @Transactional
-    public InventoryMovements registrarSaidaPorVenda(InventoryLot lot, Integer quantidade) {
-        if (quantidade <= 0) {
-            throw new IllegalArgumentException("Quantidade de saída deve ser positiva");
+    @Deprecated(forRemoval = true)
+    public InventoryMovements registrarEntrada(InventoryLot lot, Integer quantidade) {
+        return registerEntry(lot, quantidade);
+    }
+
+
+     //Registers a sale exit movement.
+     //Uses FEFO strategy (First Expire, First Out) to select the lot.
+    @Transactional
+    public InventoryMovements registerSaleExit(InventoryLot lot, Integer quantity) {
+
+        if (quantity <= 0) {
+
+            throw new IllegalArgumentException("Exit quantity must be positive");
+
+
         }
 
-        int disponivel = calcularQuantidadeDisponivel(lot);
-        if (quantidade > disponivel) {
+        int available = calculateAvailableQuantity(lot);
+        if (quantity > available) {
+
             throw new IllegalArgumentException(
-                String.format("Quantidade insuficiente no lote %s. Disponível: %d, Solicitado: %d",
-                    lot.getLotNumber(), disponivel, quantidade)
+
+                String.format("Insufficient quantity in lot %s. Available: %d, Requested: %d",
+                    lot.getLotNumber(), available, quantity)
+
+
             );
         }
 
         InventoryMovements movement = new InventoryMovements();
         movement.setInventoryLot(lot);
         movement.setMovementType(MovementType.SALE_EXIT);
-        movement.setQuantity(quantidade);
+        movement.setQuantity(quantity);
 
         return movementRepository.save(movement);
+
     }
 
-    /**
-     * Registra ajuste positivo de inventário.
-     */
+
+
+    // Legacy method for backward compatibility
     @Transactional
-    public InventoryMovements registrarAjusteEntrada(InventoryLot lot, Integer quantidade, String motivo) {
-        if (quantidade <= 0) {
-            throw new IllegalArgumentException("Quantidade do ajuste deve ser positiva");
+    @Deprecated(forRemoval = true)
+    public InventoryMovements registrarSaidaPorVenda(InventoryLot lot, Integer quantidade) {
+        return registerSaleExit(lot, quantidade);
+    }
+
+
+
+    //Registers a positive inventory adjustment.
+    @Transactional
+    public InventoryMovements registerAdjustmentIn(InventoryLot lot, Integer quantity, String reason) {
+        if (quantity <= 0) {
+
+            throw new IllegalArgumentException("Adjustment quantity must be positive");
+
         }
 
         InventoryMovements movement = new InventoryMovements();
         movement.setInventoryLot(lot);
         movement.setMovementType(MovementType.ADJUSTMENT_IN);
-        movement.setQuantity(quantidade);
-        movement.setReason(motivo);
+        movement.setQuantity(quantity);
+        movement.setReason(reason);
 
         return movementRepository.save(movement);
+
+
     }
 
-    /**
-     * Registra ajuste negativo de inventário.
-     * Motivo é obrigatório.
-     */
+    // Legacy method for backward compatibility
     @Transactional
-    public InventoryMovements registrarAjusteSaida(InventoryLot lot, Integer quantidade, String motivo) {
-        if (quantidade <= 0) {
-            throw new IllegalArgumentException("Quantidade do ajuste deve ser positiva");
+    @Deprecated(forRemoval = true)
+    public InventoryMovements registrarAjusteEntrada(InventoryLot lot, Integer quantity, String reason) {
+
+        return registerAdjustmentIn(lot, quantity, reason);
+
+    }
+
+
+
+
+    //Registers a negative inventory adjustment.
+     //Reason is mandatory.
+    @Transactional
+    public InventoryMovements registerAdjustmentOut(InventoryLot lot, Integer quantity, String reason) {
+        if (quantity <= 0) {
+
+            throw new IllegalArgumentException("Adjustment quantity must be positive");
+
         }
-        if (motivo == null || motivo.isBlank()) {
-            throw new IllegalArgumentException("Motivo é obrigatório para ajuste de saída");
+        if (reason == null || reason.isBlank()) {
+
+            throw new IllegalArgumentException("Reason is mandatory for output adjustment");
+
         }
 
-        int disponivel = calcularQuantidadeDisponivel(lot);
-        if (quantidade > disponivel) {
+        int available = calculateAvailableQuantity(lot);
+
+        if (quantity > available) {
+
             throw new IllegalArgumentException(
-                String.format("Quantidade insuficiente no lote %s para ajuste. Disponível: %d",
-                    lot.getLotNumber(), disponivel)
+                String.format("Insufficient quantity in lot %s for adjustment. Available: %d",
+                    lot.getLotNumber(), available)
+
+
             );
         }
 
         InventoryMovements movement = new InventoryMovements();
         movement.setInventoryLot(lot);
         movement.setMovementType(MovementType.ADJUSTMENT_OUT);
-        movement.setQuantity(quantidade);
-        movement.setReason(motivo);
+        movement.setQuantity(quantity);
+        movement.setReason(reason);
 
         return movementRepository.save(movement);
     }
 
-    /**
-     * Registra descarte por vencimento ou avaria.
-     * Motivo é obrigatório.
-     */
+
+
+
+
+    // Legacy method for backward compatibility
     @Transactional
-    public InventoryMovements registrarDescarte(InventoryLot lot, Integer quantidade, String motivo) {
-        if (quantidade <= 0) {
-            throw new IllegalArgumentException("Quantidade de descarte deve ser positiva");
+    @Deprecated(forRemoval = true)
+    public InventoryMovements registrarAjusteSaida(InventoryLot lot, Integer quantidade, String motivo) {
+        return registerAdjustmentOut(lot, quantidade, motivo);
+    }
+
+    //Registers a disposal movement for expired or damaged lots, Reason is mandatory.
+    @Transactional
+    public InventoryMovements registerDisposal(InventoryLot lot, Integer quantity, String reason) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Disposal quantity must be positive");
         }
-        if (motivo == null || motivo.isBlank()) {
-            throw new IllegalArgumentException("Motivo é obrigatório para descarte");
+        if (reason == null || reason.isBlank()) {
+            throw new IllegalArgumentException("Reason is mandatory for disposal");
         }
 
-        int disponivel = calcularQuantidadeDisponivel(lot);
-        if (quantidade > disponivel) {
+        int available = calculateAvailableQuantity(lot);
+        if (quantity > available) {
             throw new IllegalArgumentException(
-                String.format("Quantidade insuficiente no lote %s para descarte. Disponível: %d",
-                    lot.getLotNumber(), disponivel)
+                String.format("Insufficient quantity in lot %s for disposal. Available: %d",
+                    lot.getLotNumber(), available)
             );
         }
 
@@ -150,44 +211,132 @@ public class InventoryService {
         return movementRepository.save(movement);
     }
 
+    // Legacy method for backward compatibility
+    @Transactional
+    @Deprecated(forRemoval = true)
+    public InventoryMovements registrarDescarte(InventoryLot lot, Integer quantidade, String motivo) {
+        return registerDisposal(lot, quantidade, motivo);
+    }
+
+
+
+
+
     // ==========================================
     // CONSULTAS DE SALDO
     // ==========================================
 
+
     /**
-     * Calcula a quantidade disponível de um lote.
-     * Fórmula: ENTRY + ADJUSTMENT_IN - SALE_EXIT - ADJUSTMENT_OUT - DISPOSAL
+     * Calculates the available quantity of a lot.
+     * Formula: ENTRY + ADJUSTMENT_IN - SALE_EXIT - ADJUSTMENT_OUT - DISPOSAL
      */
     @Transactional(readOnly = true)
-    public int calcularQuantidadeDisponivel(InventoryLot lot) {
-        List<InventoryMovements> movimentacoes = movementRepository.findByInventoryLot(lot);
+    public Integer calculateAvailableQuantity(InventoryLot lot) {
+        List<InventoryMovements> movements = movementRepository.findByInventoryLot(lot);
 
-        int entradas = movimentacoes.stream()
+        int entries = movements.stream()
             .filter(m -> m.getMovementType() == MovementType.ENTRY ||
                          m.getMovementType() == MovementType.ADJUSTMENT_IN)
             .mapToInt(InventoryMovements::getQuantity)
             .sum();
 
-        int saidas = movimentacoes.stream()
+        int exits = movements.stream()
             .filter(m -> m.getMovementType() == MovementType.SALE_EXIT ||
                          m.getMovementType() == MovementType.ADJUSTMENT_OUT ||
                          m.getMovementType() == MovementType.DISPOSAL)
             .mapToInt(InventoryMovements::getQuantity)
             .sum();
 
-        return entradas - saidas;
+        return entries - exits;
     }
 
+    // Legacy method for backward compatibility
+    @Transactional(readOnly = true)
+    @Deprecated(forRemoval = true)
+    public int calcularQuantidadeDisponivel(InventoryLot lot) {
+        return calculateAvailableQuantity(lot);
+    }
+
+
+
+
     /**
-     * Calcula saldo consolidado de um produto (soma de todos os lotes).
+     * Calculates consolidated product stock (sum of all lots).
+     * Optimized to use query on repository instead of loading all lots in memory.
      */
     @Transactional(readOnly = true)
-    public int calcularSaldoProduto(Long productId) {
-        List<InventoryLot> lotes = lotRepository.findAll();
-        return lotes.stream()
-            .filter(lot -> lot.getProduct().getId().equals(productId))
-            .mapToInt(this::calcularQuantidadeDisponivel)
+    public Integer calculateProductStock(Long productId) {
+        var product = productRepository.findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
+        
+        List<InventoryLot> lots = lotRepository.findByProduct(product);
+        return lots.stream()
+            .mapToInt(this::calculateAvailableQuantity)
             .sum();
+
+
+    }
+
+
+
+    // Legacy method for backward compatibility
+    @Transactional(readOnly = true)
+    @Deprecated(forRemoval = true)
+    public int calcularSaldoProduto(Long productId) {
+        return calculateProductStock(productId);
+    }
+
+
+
+
+    /**
+     * Registers sale exit of stock distributing by lots (FEFO).
+     * Uses first-expire-first-out strategy for lot selection.
+     * Optimized to avoid multiple repository calls.
+     */
+
+    @Transactional
+    public void registerSaleExitByProduct(Long productId, Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Exit quantity must be positive");
+        }
+
+
+        var product = productRepository.findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
+
+        // Find valid and non-expired lots sorted by expiration date (FEFO)
+        List<InventoryLot> availableLots = lotRepository.findByProduct(product).stream()
+            .filter(lot -> lot.getExpirationDate().isAfter(LocalDate.now()))
+            .filter(lot -> calculateAvailableQuantity(lot) > 0)
+            .sorted(Comparator.comparing(InventoryLot::getExpirationDate))
+            .toList();
+
+        int remaining = quantity;
+        for (InventoryLot lot : availableLots) {
+            if (remaining <= 0) break;
+
+            int available = calculateAvailableQuantity(lot);
+            int exit = Math.min(remaining, available);
+            registerSaleExit(lot, exit);
+            remaining -= exit;
+        }
+
+        // If quantities are still missing after using all lots, throw error
+        if (remaining > 0) {
+            throw new IllegalStateException(
+                String.format("Insufficient stock for %s. Available: %d, Requested: %d",
+                    product.getName(), quantity - remaining, quantity)
+            );
+        }
+    }
+
+    // Legacy method for backward compatibility
+    @Transactional
+    @Deprecated(forRemoval = true)
+    public void registerSaleExit(Long productId, Integer quantity) {
+        registerSaleExitByProduct(productId, quantity);
     }
 
     // ==========================================
@@ -195,57 +344,86 @@ public class InventoryService {
     // ==========================================
 
     /**
-     * Busca o melhor lote para venda usando estratégia FEFO
-     * (First Expire, First Out - primeiro que vence, primeiro que sai).
+     * Finds the best lot for sale using FEFO strategy.
+     * (First Expire, First Out - lot that expires first comes out first).
      */
     @Transactional(readOnly = true)
-    public Optional<InventoryLot> buscarMelhorLoteParaVenda(Long productId, Integer quantidadeNecessaria) {
-        // Buscar todos os lotes do produto
-        List<InventoryLot> lotes = lotRepository.findAll().stream()
-            .filter(lot -> lot.getProduct().getId().equals(productId))
-            .toList();
+    public Optional<InventoryLot> findBestLotForSale(Long productId, Integer neededQuantity) {
+        var product = productRepository.findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
+        
+        List<InventoryLot> lots = lotRepository.findByProduct(product);
 
-        return lotes.stream()
-            .filter(lot -> calcularQuantidadeDisponivel(lot) >= quantidadeNecessaria)
+        return lots.stream()
+            .filter(lot -> calculateAvailableQuantity(lot) >= neededQuantity)
             .filter(lot -> lot.getExpirationDate().isAfter(LocalDate.now()))
             .min(Comparator.comparing(InventoryLot::getExpirationDate));
     }
 
+    // Legacy method for backward compatibility
+    @Transactional(readOnly = true)
+    @Deprecated(forRemoval = true)
+    public Optional<InventoryLot> buscarMelhorLoteParaVenda(Long productId, Integer quantidadeNecessaria) {
+        return findBestLotForSale(productId, quantidadeNecessaria);
+    }
+
     /**
-     * Retorna lotes vencidos para descarte.
+     * Returns expired lots for disposal.
      */
     @Transactional(readOnly = true)
-    public List<InventoryLot> buscarLotesVencidos() {
+    public List<InventoryLot> findExpiredLots() {
         return lotRepository.findByExpirationDateBefore(LocalDate.now());
     }
 
-    /**
-     * Retorna lotes que vencem em um período (alerta de vencimento próximo).
-     */
+    // Legacy method for backward compatibility
     @Transactional(readOnly = true)
-    public List<InventoryLot> buscarLotesVencendoEm(int dias) {
-        LocalDate hoje = LocalDate.now();
-        LocalDate futuro = hoje.plusDays(dias);
-        return lotRepository.findByExpirationDateBetween(hoje, futuro);
+    @Deprecated(forRemoval = true)
+    public List<InventoryLot> buscarLotesVencidos() {
+        return findExpiredLots();
     }
 
     /**
-     * Processa descarte automático de lotes vencidos.
+     * Returns lots that expire within a period (alert for upcoming expiration).
+     */
+    @Transactional(readOnly = true)
+    public List<InventoryLot> findLotsExpiringIn(int days) {
+        LocalDate today = LocalDate.now();
+        LocalDate future = today.plusDays(days);
+        return lotRepository.findByExpirationDateBetween(today, future);
+    }
+
+    // Legacy method for backward compatibility
+    @Transactional(readOnly = true)
+    @Deprecated(forRemoval = true)
+    public List<InventoryLot> buscarLotesVencendoEm(int dias) {
+        return findLotsExpiringIn(dias);
+    }
+
+    /**
+     * Processes automatic disposal of expired lots.
+     * Registers disposal movement for each lot with available stock.
      */
     @Transactional
-    public List<InventoryMovements> processarVencidos() {
-        List<InventoryLot> vencidos = buscarLotesVencidos();
-        return vencidos.stream()
+    public List<InventoryMovements> processExpiredLots() {
+        List<InventoryLot> expired = findExpiredLots();
+        return expired.stream()
             .map(lot -> {
-                int disponivel = calcularQuantidadeDisponivel(lot);
-                if (disponivel > 0) {
-                    return registrarDescarte(lot, disponivel,
-                        "Descarte automático por vencimento: " + lot.getExpirationDate());
+                int available = calculateAvailableQuantity(lot);
+                if (available > 0) {
+                    return registerDisposal(lot, available,
+                        "Automatic disposal due to expiration: " + lot.getExpirationDate());
                 }
                 return null;
             })
-            .filter(m -> m != null)
+            .filter(java.util.Objects::nonNull)
             .toList();
+    }
+
+    // Legacy method for backward compatibility
+    @Transactional
+    @Deprecated(forRemoval = true)
+    public List<InventoryMovements> processarVencidos() {
+        return processExpiredLots();
     }
 
     // ==========================================
@@ -253,17 +431,24 @@ public class InventoryService {
     // ==========================================
 
     /**
-     * Retorna histórico completo de movimentações de um lote.
+     * Returns complete history of movements for a lot.
      */
     @Transactional(readOnly = true)
-    public List<InventoryMovements> buscarHistoricoLote(Long lotId) {
+    public List<InventoryMovements> findLotHistory(Long lotId) {
         InventoryLot lot = lotRepository.findById(lotId)
-            .orElseThrow(() -> new IllegalArgumentException("Lote não encontrado: " + lotId));
+            .orElseThrow(() -> new IllegalArgumentException("Lot not found: " + lotId));
         return movementRepository.findByInventoryLot(lot);
     }
 
+    // Legacy method for backward compatibility
+    @Transactional(readOnly = true)
+    @Deprecated(forRemoval = true)
+    public List<InventoryMovements> buscarHistoricoLote(Long lotId) {
+        return findLotHistory(lotId);
+    }
+
     /**
-     * Retorna todas as movimentações com motivo (para auditoria).
+     * Returns all movements with reason (for audit trail).
      */
     @Transactional(readOnly = true)
     public List<InventoryMovements> findMovementsWithReason() {

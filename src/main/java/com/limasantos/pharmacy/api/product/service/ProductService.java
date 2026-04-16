@@ -53,6 +53,7 @@ public class ProductService {
 
     // ---> READ
 
+    //Busca um produto por ID com informações básicas.
     @Transactional(readOnly = true)
     public ProductDTO findById(Long id) {
 
@@ -61,24 +62,31 @@ public class ProductService {
 
     }
 
+
+    //Busca detalhes completos de um produto incluindo estoque atual e Combina dados do produto com cálculo de estoque do InventoryService.
     @Transactional(readOnly = true)
     public ProductDetailDTO findDetailById(Long id) {
-        Product product = getProductOrThrow(id);
-        Integer stock = inventoryService.calculateProductStock(id);
 
-        return productMapper.convertToDetailDTO(product, stock);
+        Product product = getProductOrThrow(id);
+        Integer currentStock = getProductStock(id);
+
+        return productMapper.convertToDetailDTO(product, currentStock);
     }
 
+    //Lista todos os produtos com informações básicas.
 
     @Transactional(readOnly = true)
     public List<ProductDTO> findAll() {
-
         return productMapper.toDTOList(productRepository.findAll());
+
 
     }
 
-    // ================= UPDATE =================
+
+
+    // --> UPDATE
     public ProductDTO update(Long id, CreateProductDTO dto) {
+
         Product product = getProductOrThrow(id);
         Supplier supplier = getSupplierOrThrow(dto.getSupplierId());
 
@@ -87,51 +95,121 @@ public class ProductService {
         updateProductFields(product, dto, supplier);
 
         Product updated = productRepository.save(product);
+
+
         return productMapper.toDTO(updated);
     }
 
-    // ================= DELETE =================
+
+
+
+
+
+    // --> DELETE
+
     public void delete(Long id) {
         Product product = getProductOrThrow(id);
 
-        Integer stock = inventoryService.calculateProductStock(id);
-        if (stock > 0) {
+        Integer stock = getProductStock(id);
+        if (stock > 0)  {
+
+
             throw new IllegalStateException("Não é possível deletar produto com estoque disponível");
+
+
         }
 
         productRepository.delete(product);
+
+
     }
 
 
-    // ================= FILTERS =================
+
+
+    // --> FILTERS
+
     @Transactional(readOnly = true)
-    public List<ProductDTO> findBySupplier(Long supplierId) {
+        public List<ProductDTO> findBySupplier(Long supplierId) {
+
+
         Supplier supplier = getSupplierOrThrow(supplierId);
+
         return productMapper.toDTOList(productRepository.findBySupplier(supplier));
+
+
+
     }
 
     @Transactional(readOnly = true)
     public List<ProductDTO> findControlledProducts() {
+
         return productMapper.toDTOList(productRepository.findByControlledTrue());
+
+
     }
 
-    // ================= PRIVATE METHODS =================
+    // --> PRIVATE METHODS
+
+    //Busca um produto por ID ou lança exceção se não encontrado.
 
     private Product getProductOrThrow(Long id) {
+
         return productRepository.findById(id)
+
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + id));
+
+
     }
 
+    //Busca um fornecedor por ID ou lança exceção se não encontrado.
+
     private Supplier getSupplierOrThrow(Long id) {
+
         return supplierRepository.findById(id)
+
                 .orElseThrow(() -> new ResourceNotFoundException("Fornecedor não encontrado com ID: " + id));
     }
 
-    private void validatePrices(CreateProductDTO dto) {
-        if (dto.getPriceSale().compareTo(dto.getPriceCost()) <= 0) {
-            throw new IllegalArgumentException("Preço de venda deve ser maior que o preço de custo");
+
+
+    // Obtém o estoque disponível de um produto
+    // Centraliza a chamada ao InventoryService para facilitar futuras mudanças.
+
+
+    private Integer getProductStock(Long productId) {
+
+        try {
+
+            return inventoryService.calculateProductStock(productId);
+
+        } catch (Exception e) {
+            // Log do erro e retorno seguro (zero estoque)
+
+            System.err.println("Erro ao calcular estoque do produto " + productId + ": " + e.getMessage());
+            return 0;
+
         }
     }
+
+
+
+    // Valida se o preço de venda é maior que o preço de custo.
+
+    private void validatePrices(CreateProductDTO dto) {
+
+        if (dto.getPriceSale().compareTo(dto.getPriceCost()) <= 0) {
+
+            throw new IllegalArgumentException("Preço de venda deve ser maior que o preço de custo");
+        }
+
+
+
+    }
+
+
+    // Atualiza os campos do produto a partir do DTO.
+
 
     private void updateProductFields(Product product, CreateProductDTO dto, Supplier supplier) {
         product.setName(dto.getName());
@@ -144,4 +222,7 @@ public class ProductService {
         product.setProductCategoryType(dto.getProductCategoryType());
         product.setSupplier(supplier);
     }
+
+
+
 }
