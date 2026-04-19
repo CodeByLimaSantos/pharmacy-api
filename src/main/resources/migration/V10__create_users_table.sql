@@ -1,0 +1,11 @@
+CREATE TABLE TB_users (
+    id BINARY(16) NOT NULL PRIMARY KEY,
+
+    username VARCHAR(255) NOT NULL UNIQUE,
+
+    password VARCHAR(20) NOT NULL,
+
+    email VARCHAR(255) NOT NULL UNIQUE,
+
+    role VARCHAR(50) NOT NULL
+);
