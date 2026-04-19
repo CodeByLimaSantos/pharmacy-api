@@ -1,6 +1,6 @@
 package com.limasantos.pharmacy.api.product.entity;
 
-import com.limasantos.pharmacy.api.entity.ProductCategoryTypes;
+import com.limasantos.pharmacy.api.category.entity.entity.ProductCategoryTypes;
 import jakarta.persistence.*;
 import com.limasantos.pharmacy.api.supplier.entity.Supplier;
 import jakarta.validation.constraints.NotBlank;

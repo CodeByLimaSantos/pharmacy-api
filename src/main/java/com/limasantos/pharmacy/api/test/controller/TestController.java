@@ -1,12 +1,13 @@
 package com.limasantos.pharmacy.api.test.controller;
 
+import com.limasantos.pharmacy.api.dto.response.base.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @RestController
@@ -31,13 +33,22 @@ public class TestController {
             description = "Retorna status da API com timestamp para validar disponibilidade do servico."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "API disponivel",
-                    content = @Content(schema = @Schema(implementation = HealthResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Falha interna no servidor")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "API disponivel",
+                    content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Falha interna no servidor")
     })
-    public ResponseEntity<HealthResponse> health() {
+    public ResponseEntity<ApiResponse<HealthResponse>> health(HttpServletRequest request) {
         HealthResponse response = new HealthResponse("UP", OffsetDateTime.now().toString(), "HealthSync API");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponse.<HealthResponse>builder()
+                        .success(true)
+                        .message("Serviço disponível")
+                        .code("HEALTH_UP")
+                        .timestamp(LocalDateTime.now())
+                        .path(resolvePath(request))
+                        .data(response)
+                        .build()
+        );
     }
 
     @GetMapping("/greet/{name}")
@@ -46,22 +57,32 @@ public class TestController {
             description = "Recebe um nome e retorna uma saudacao; pode ser normal ou em caixa alta."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Saudacao gerada com sucesso",
-                    content = @Content(schema = @Schema(implementation = GreetingResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Nome invalido")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Saudacao gerada com sucesso",
+                    content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Nome invalido")
     })
-    public ResponseEntity<GreetingResponse> greet(
+    public ResponseEntity<ApiResponse<GreetingResponse>> greet(
             @Parameter(description = "Nome para compor a saudacao", example = "Lucas", required = true)
             @PathVariable String name,
             @Parameter(description = "Define se a mensagem sera retornada em letras maiusculas", example = "false")
-            @RequestParam(defaultValue = "false") boolean uppercase
+            @RequestParam(defaultValue = "false") boolean uppercase,
+            HttpServletRequest request
     ) {
         String greeting = "Ola, " + name + "! Bem-vindo(a) ao HealthSync.";
         if (uppercase) {
             greeting = greeting.toUpperCase();
         }
 
-        return ResponseEntity.ok(new GreetingResponse(greeting, uppercase));
+        return ResponseEntity.ok(
+                ApiResponse.<GreetingResponse>builder()
+                        .success(true)
+                        .message("Saudação gerada com sucesso")
+                        .code("GREETING_GENERATED")
+                        .timestamp(LocalDateTime.now())
+                        .path(resolvePath(request))
+                        .data(new GreetingResponse(greeting, uppercase))
+                        .build()
+        );
     }
 
     @PostMapping("/echo")
@@ -70,20 +91,30 @@ public class TestController {
             description = "Recebe uma mensagem no corpo da requisicao e retorna a mesma mensagem no formato padronizado."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Mensagem processada com sucesso",
-                    content = @Content(schema = @Schema(implementation = EchoResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Payload invalido")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Mensagem processada com sucesso",
+                    content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Payload invalido")
     })
-    public ResponseEntity<EchoResponse> echo(
+    public ResponseEntity<ApiResponse<EchoResponse>> echo(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
                     description = "Objeto com a mensagem a ser ecoada",
                     content = @Content(schema = @Schema(implementation = EchoRequest.class))
             )
-            @Valid @org.springframework.web.bind.annotation.RequestBody EchoRequest request
+            @Valid @org.springframework.web.bind.annotation.RequestBody EchoRequest body,
+            HttpServletRequest request
     ) {
-        EchoResponse response = new EchoResponse(request.message(), OffsetDateTime.now().toString());
-        return ResponseEntity.ok(response);
+        EchoResponse response = new EchoResponse(body.message(), OffsetDateTime.now().toString());
+        return ResponseEntity.ok(
+                ApiResponse.<EchoResponse>builder()
+                        .success(true)
+                        .message("Payload processado com sucesso")
+                        .code("ECHO_PROCESSED")
+                        .timestamp(LocalDateTime.now())
+                        .path(resolvePath(request))
+                        .data(response)
+                        .build()
+        );
     }
 
     @Schema(name = "HealthResponse", description = "Modelo de resposta para verificar disponibilidade da API")
@@ -116,5 +147,9 @@ public class TestController {
             @Schema(description = "Momento em que a API processou o payload", example = "2026-04-18T14:02:00Z") String processedAt
     ) {
     }
-}
 
+    private String resolvePath(HttpServletRequest request) {
+        String queryString = request.getQueryString();
+        return queryString == null ? request.getRequestURI() : request.getRequestURI() + "?" + queryString;
+    }
+}

@@ -1,7 +1,12 @@
 package com.limasantos.pharmacy.api.shared.exception;
 
+import com.limasantos.pharmacy.api.dto.response.error.ErrorResponse;
+import com.limasantos.pharmacy.api.dto.response.error.ValidationErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -14,58 +19,94 @@ import java.util.Map;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    
+
     /**
      * Trata ResourceNotFoundException
      */
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
-        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex,
+                                                                HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "NOT_FOUND", ex.getMessage(), request);
     }
-    
+
     /**
      * Trata BusinessRuleException
      */
     @ExceptionHandler(BusinessRuleException.class)
-    public ResponseEntity<Map<String, Object>> handleBusinessRule(BusinessRuleException ex) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleBusinessRule(BusinessRuleException ex,
+                                                            HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "BUSINESS_RULE_ERROR", ex.getMessage(), request);
     }
-    
+
     /**
      * Trata IllegalArgumentException
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex,
+                                                               HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "INVALID_ARGUMENT", ex.getMessage(), request);
     }
-    
+
     /**
      * Trata IllegalStateException
      */
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
-        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex,
+                                                            HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.CONFLICT, "ILLEGAL_STATE", ex.getMessage(), request);
     }
-    
+
+    /**
+     * Trata MethodArgumentNotValidException para erros de validação
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ValidationErrorResponse> handleValidation(MethodArgumentNotValidException ex,
+                                                                    HttpServletRequest request) {
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            fieldErrors.put(fieldError.getField(), fieldError.getDefaultMessage());
+        }
+
+        ValidationErrorResponse body = new ValidationErrorResponse(
+                "VALIDATION_ERROR",
+                "Falha na validacao dos dados enviados",
+                LocalDateTime.now(),
+                request.getRequestURI(),
+                HttpStatus.BAD_REQUEST.value(),
+                fieldErrors
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     /**
      * Trata exceções genéricas
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor");
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex,
+                                                                HttpServletRequest request) {
+        return buildErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "INTERNAL_SERVER_ERROR",
+                "Erro interno do servidor",
+                request
+        );
     }
-    
+
     /**
      * Constrói resposta padronizada de erro
      */
-    private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String message) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", status.value());
-        body.put("error", status.getReasonPhrase());
-        body.put("message", message);
-        
+    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status,
+                                                             String error,
+                                                             String details,
+                                                             HttpServletRequest request) {
+        ErrorResponse body = new ErrorResponse(
+                error,
+                details,
+                LocalDateTime.now(),
+                request.getRequestURI(),
+                status.value()
+        );
         return new ResponseEntity<>(body, status);
     }
 }
-

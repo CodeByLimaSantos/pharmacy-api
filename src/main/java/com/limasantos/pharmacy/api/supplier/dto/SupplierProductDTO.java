@@ -1,6 +1,6 @@
 package com.limasantos.pharmacy.api.supplier.dto;
 
-import com.limasantos.pharmacy.api.entity.ProductCategoryTypes;
+import com.limasantos.pharmacy.api.category.entity.entity.ProductCategoryTypes;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,5 +1,6 @@
 package com.limasantos.pharmacy.api.product.repository;
 
+import com.limasantos.pharmacy.api.category.entity.entity.ProductCategoryTypes;
 import com.limasantos.pharmacy.api.product.entity.Product;
 import com.limasantos.pharmacy.api.supplier.entity.Supplier;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,7 +24,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     /**
      * Busca produtos por categoria
      */
-    List<Product> findByProductCategoryType(com.limasantos.pharmacy.api.entity.ProductCategoryTypes category);
+    List<Product> findByProductCategoryType(ProductCategoryTypes category);
 
     /**
      * Busca produtos por nome (case-insensitive)

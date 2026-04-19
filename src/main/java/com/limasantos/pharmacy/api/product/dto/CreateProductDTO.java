@@ -1,6 +1,6 @@
 package com.limasantos.pharmacy.api.product.dto;
 
-import com.limasantos.pharmacy.api.entity.ProductCategoryTypes;
+import com.limasantos.pharmacy.api.category.entity.entity.ProductCategoryTypes;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
