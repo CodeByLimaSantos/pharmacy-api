@@ -1,4 +1,4 @@
-package com.limasantos.pharmacy.api.user.model;
+package com.limasantos.pharmacy.api.user.models;
 
 public enum UserRole {
         ROLE_ADMIN("ADMIN"),

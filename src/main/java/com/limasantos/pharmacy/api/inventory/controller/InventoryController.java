@@ -107,6 +107,14 @@ public class InventoryController {
     }
 
 
+    @GetMapping("/lots") //keep this for backward compatibility, but redirect to /all
+    @Operation(summary = "Listar lotes (raiz)", description = "Atalho para listagem de lotes no recurso raiz de inventário.")
+    public ResponseEntity<PaginatedResponse<InventoryLotListResponse>> findAllLotsRoot(
+            HttpServletRequest request
+    ) {
+        return findAllLots(request);
+    }
+
     //list all lots with available stock
     @GetMapping("/all")
 

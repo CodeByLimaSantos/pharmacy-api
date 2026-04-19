@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/customer")
+@RequestMapping("/customer")
 @Tag(name = "Clientes", description = "Gerenciamento de clientes e consulta por CPF")
 public class CustomerController {
 

@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sales")
+@RequestMapping("/sales")
 @Tag(name = "Vendas", description = "Registro de vendas, consultas por cliente e consolidação de totais")
 public class SaleController {
 

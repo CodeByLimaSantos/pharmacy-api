@@ -1,5 +1,4 @@
-package com.limasantos.pharmacy.api.user.model;
-
+package com.limasantos.pharmacy.api.user.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -18,29 +17,43 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class User implements UserDetails {
 
+    public User(UUID id, String username, String password, UserRole role, String email) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.role = role;
+        this.email = email;
+    }
+
+    public User(String password, String username, UserRole role, String email) {
+        this.password = password;
+        this.username = username;
+        this.role = role;
+        this.email = email;
+    }
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, unique = true)
-    @Size(min = 8, max = 20)
+    @Column(nullable = false)
     private String password;
 
-    @Email
-    @Column(nullable = false, unique = true)
-    private String email;
 
     @Enumerated(EnumType.STRING)
     @Column(name= "role", nullable = false)
     private UserRole role;
 
+
+    @Email
+    @Column(nullable = false, unique = true)
+    private String email;
 
 
     @Override
@@ -48,11 +61,21 @@ public class User implements UserDetails {
         return username;
     }
 
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (this.role == UserRole.ROLE_ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_CAIXA"));
-        else return List.of(new SimpleGrantedAuthority("ROLE_CAIXA"));
+        if (this.role == UserRole.ROLE_ADMIN) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_ADMIN"),
+                    new SimpleGrantedAuthority("ROLE_CAIXA")
+            );
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_CAIXA"));
     }
 
 
@@ -75,4 +98,7 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
+
 }

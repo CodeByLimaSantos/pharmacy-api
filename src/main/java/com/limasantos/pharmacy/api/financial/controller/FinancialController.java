@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/financial")
+@RequestMapping("/financial")
 @Tag(name = "Financeiro", description = "Operações de contas a pagar, contas a receber e consolidação financeira")
 public class FinancialController {
 
