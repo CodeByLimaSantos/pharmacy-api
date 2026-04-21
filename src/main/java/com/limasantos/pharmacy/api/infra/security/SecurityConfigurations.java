@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfigurations {
@@ -33,6 +35,7 @@ public class SecurityConfigurations {
 
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
+                .cors(withDefaults())
 
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -43,6 +46,8 @@ public class SecurityConfigurations {
 
                                 .requestMatchers(SWAGGER_WHITELIST).permitAll()
 
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                                 .requestMatchers(
                                         HttpMethod.POST,
                                         "/auth/login",
@@ -51,12 +56,12 @@ public class SecurityConfigurations {
 
                                 .requestMatchers(
                                         HttpMethod.POST,
-                                        "/product",
-                                        "/inventory",
-                                        "/sales",
-                                        "/customer",
-                                        "/financial",
-                                        "/supplier"
+                                        "/product/create",
+                                        "/inventory/create",
+                                        "/sales/create",
+                                        "/customer/create",
+                                        "/financial/create",
+                                        "/suppliers/create"
                                 ).hasRole("ADMIN")
 
                                 .anyRequest().authenticated()

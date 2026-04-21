@@ -49,4 +49,3 @@ public class SwaggerConfig {
                         .description("Ambiente local"));
     }
 }
-
