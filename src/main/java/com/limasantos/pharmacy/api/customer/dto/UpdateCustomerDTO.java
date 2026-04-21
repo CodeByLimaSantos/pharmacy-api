@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class UpdateCustomerDTO {
 
-    @NotBlank(message = "Nome do cliente é obrigatório")
     private String name;
+
 }
 

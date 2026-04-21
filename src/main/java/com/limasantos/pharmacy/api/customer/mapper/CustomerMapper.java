@@ -5,7 +5,6 @@ import com.limasantos.pharmacy.api.customer.dto.CustomerDTO;
 import com.limasantos.pharmacy.api.customer.dto.CustomerDetailDTO;
 import com.limasantos.pharmacy.api.customer.dto.CustomerPurchaseHistoryDTO;
 import com.limasantos.pharmacy.api.customer.entity.Customer;
-import com.limasantos.pharmacy.api.sales.dto.SaleDTO;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -26,6 +25,9 @@ public class CustomerMapper {
         dto.setId(customer.getId());
         dto.setName(customer.getName());
         dto.setCpf(customer.getCpf());
+        dto.setEmail(customer.getEmail());
+        dto.setPhone(customer.getPhone());
+        dto.setAddress(customer.getAddress());
         
         return dto;
     }
@@ -47,6 +49,9 @@ public class CustomerMapper {
         Customer customer = new Customer();
         customer.setName(dto.getName());
         customer.setCpf(dto.getCpf());
+        customer.setEmail(dto.getEmail());
+        customer.setPhone(dto.getPhone());
+        customer.setAddress(dto.getAddress());
         
         return customer;
     }
@@ -62,6 +67,9 @@ public class CustomerMapper {
         dto.setId(customer.getId());
         dto.setName(customer.getName());
         dto.setCpf(customer.getCpf());
+        dto.setEmail(customer.getEmail());
+        dto.setPhone(customer.getPhone());
+        dto.setAddress(customer.getAddress());
         
         // Mapear histórico de compras
         List<CustomerPurchaseHistoryDTO> purchaseHistory = customer.getPurchaseHistory()
