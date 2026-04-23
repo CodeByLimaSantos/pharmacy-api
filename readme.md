@@ -506,47 +506,6 @@ class CustomerServiceTest {
 ```
 
 ---
-
-## 🚀 Deploy em Produção
-
-### Build Release
-
-```bash
-mvn clean package -DskipTests -P prod
-```
-
-### Executar JAR
-
-```bash
-java -jar target/pharmacy.api-0.0.1-SNAPSHOT.jar
-```
-
-### Com Docker
-
-```dockerfile
-FROM eclipse-temurin:17-jdk-alpine
-WORKDIR /app
-COPY target/pharmacy.api-0.0.1-SNAPSHOT.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-Xmx512m", "-jar", "app.jar"]
-```
-
-```bash
-# Build
-docker build -t pharmacy-api:1.0 .
-
-# Run
-docker run -d \
-  -e JWT_SECRET="secret_key" \
-  -e DB_URL="jdbc:mysql://db:3306/pharmacy_db" \
-  -e DB_USERNAME="user" \
-  -e DB_PASSWORD="password" \
-  -p 8080:8080 \
-  pharmacy-api:1.0
-```
-
----
-
 ## 🔄 Migrations com Flyway
 
 ### Estrutura
