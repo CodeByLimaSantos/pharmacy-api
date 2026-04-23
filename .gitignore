@@ -41,8 +41,17 @@ target/
 mvnw
 mvnw.cmd
 
-frontend/
+# ignora tudo dentro de frontend
+frontend/*
 
+# libera o caminho até forms
+!frontend/healthsync/
+!frontend/healthsync/src/
+!frontend/healthsync/src/components/
+!frontend/healthsync/src/components/forms/
+
+# libera tudo dentro de forms
+!frontend/healthsync/src/components/forms/**
 .env
 .env.local
 
