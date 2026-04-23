@@ -607,10 +607,7 @@ Este projeto não é um projeto OpenSource. Veja [LICENSE](LICENSE) para detalhe
 ## 👨‍💻 Autor
 
 **Guilherme Lima**
-
-- 🔗 GitHub: [@limasantos](https://github.com/limasantos)
-- 📧 Email: dev.healthsync@localhost
-- 💼 LinkedIn: [linkedin.com/in/lucas-lima-santos](https://linkedin.com/in/lucas-lima-santos)
+- 💼 LinkedIn: [linkedin.com/in/guilhermelima-dev](https://www.linkedin.com/in/guilhermelima-dev/)
 
 ---
 
