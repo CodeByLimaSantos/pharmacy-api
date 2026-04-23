@@ -45,3 +45,5 @@ frontend/
 
 .env
 .env.local
+
+docs/
