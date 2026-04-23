@@ -1,6 +1,6 @@
 package com.limasantos.pharmacy.api.product.dto;
 
-import com.limasantos.pharmacy.api.category.entity.entity.ProductCategoryTypes;
+import com.limasantos.pharmacy.api.category.entity.ProductCategoryType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +23,7 @@ public class ProductDetailDTO {
     private Boolean controlled;
     private String tarja;
     private String registerMS;
-    private ProductCategoryTypes productCategoryType;
+    private ProductCategoryType productCategoryType;
     private Long supplierId;
     private String supplierName;
     private Integer currentStock; // Estoque atual

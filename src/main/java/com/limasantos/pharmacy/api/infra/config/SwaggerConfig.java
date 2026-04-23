@@ -47,6 +47,6 @@ public class SwaggerConfig {
                 .addServersItem(new Server()
                         .url("http://localhost:8080")
                         .description("Ambiente local"));
+
     }
 }
-

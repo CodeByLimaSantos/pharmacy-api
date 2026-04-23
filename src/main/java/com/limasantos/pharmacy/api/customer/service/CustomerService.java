@@ -28,7 +28,10 @@ public class CustomerService {
     // CREATE
     public CustomerDTO createCustomer(CreateCustomerDTO dto) {
 
-        if (customerRepository.existsByCpf(dto.getCpf())) {
+        String normalizedCpf = normalizeCpf(dto.getCpf());
+        dto.setCpf(normalizedCpf);
+
+        if (customerRepository.existsByCpf(normalizedCpf)) {
             throw new IllegalArgumentException("CPF já cadastrado no sistema");
         }
 
@@ -75,8 +78,10 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public CustomerDTO findByCpf(String cpf) {
 
-        Customer customer = customerRepository.findByCpf(cpf)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com CPF: " + cpf));
+        String normalizedCpf = normalizeCpf(cpf);
+
+        Customer customer = customerRepository.findByCpf(normalizedCpf)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com CPF: " + normalizedCpf));
 
         return customerMapper.toDTO(customer);
     }
@@ -88,13 +93,19 @@ public class CustomerService {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com ID: " + id));
 
-        if (!customer.getCpf().equals(dto.getCpf()) &&
-                customerRepository.existsByCpf(dto.getCpf())) {
+        String normalizedCpf = normalizeCpf(dto.getCpf());
+        dto.setCpf(normalizedCpf);
+
+        if (!customer.getCpf().equals(normalizedCpf) &&
+                customerRepository.existsByCpf(normalizedCpf)) {
             throw new IllegalArgumentException("CPF já cadastrado no sistema");
         }
 
         customer.setName(dto.getName());
-        customer.setCpf(dto.getCpf());
+        customer.setCpf(normalizedCpf);
+        customer.setEmail(dto.getEmail());
+        customer.setPhone(dto.getPhone());
+        customer.setAddress(dto.getAddress());
 
         Customer updatedCustomer = customerRepository.save(customer);
 
@@ -113,6 +124,10 @@ public class CustomerService {
         }
 
         customerRepository.delete(customer);
+    }
+
+    private String normalizeCpf(String cpf) {
+        return cpf == null ? "" : cpf.replaceAll("\\D", "");
     }
 
 }

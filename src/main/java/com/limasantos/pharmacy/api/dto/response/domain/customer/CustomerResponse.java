@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,11 +12,19 @@ public class CustomerResponse {
     private Long id;
     private String name;
     private String cpf;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String email;
+    private String phone;
+    private String address;
 
     public static CustomerResponse fromDto(CustomerDTO dto) {
-        return new CustomerResponse(dto.getId(), dto.getName(), dto.getCpf(), null, null);
+        return new CustomerResponse(
+                dto.getId(),
+                dto.getName(),
+                dto.getCpf(),
+                dto.getEmail(),
+                dto.getPhone(),
+                dto.getAddress()
+        );
     }
 }
 

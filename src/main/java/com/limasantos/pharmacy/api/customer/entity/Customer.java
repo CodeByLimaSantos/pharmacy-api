@@ -33,6 +33,12 @@ public class Customer {
     @Column(nullable = false, unique = true)
     private String cpf;
 
+    private String email;
+
+    private String phone;
+
+    private String address;
+
     // RELACIONAMENTO: Um cliente tem muitas vendas
     // mappedBy = "customer" indica que a entidade 'Sale' é a dona do relacionamento
     // cascade = CascadeType.ALL: operações no cliente (salvar, deletar) afetam suas vendas

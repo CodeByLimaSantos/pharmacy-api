@@ -19,6 +19,14 @@ import java.io.IOException;
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
+    private static final String[] PUBLIC_PATH_PREFIXES = {
+            "/swagger-ui",
+            "/v3/api-docs",
+            "/swagger-ui.html",
+            "/auth/login",
+            "/auth/register"
+    };
+
 
     @Autowired
     private TokenService tokenService;
@@ -52,6 +60,20 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
 
+    }
+
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        for (String prefix : PUBLIC_PATH_PREFIXES) {
+            if (path.startsWith(prefix)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 

@@ -40,6 +40,7 @@ public class ProductService {
     // ---> CREATE
 
     public ProductDTO createProduct(CreateProductDTO dto) {
+
         Supplier supplier = getSupplierOrThrow(dto.getSupplierId());
         validatePrices(dto);
 
@@ -47,6 +48,7 @@ public class ProductService {
         Product saved = productRepository.save(product);
 
         return productMapper.toDTO(saved);
+
     }
 
 

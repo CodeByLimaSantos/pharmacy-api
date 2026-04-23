@@ -1,6 +1,6 @@
 package com.limasantos.pharmacy.api.dto.response.domain.product;
 
-import com.limasantos.pharmacy.api.category.entity.entity.ProductCategoryTypes;
+import com.limasantos.pharmacy.api.category.entity.ProductCategoryType;
 import com.limasantos.pharmacy.api.product.dto.ProductDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,7 +21,7 @@ public class ProductResponse {
     private Boolean controlled;
     private String tarja;
     private String registerMS;
-    private ProductCategoryTypes productCategoryType;
+    private ProductCategoryType productCategoryType;
     private Long supplierId;
     private String supplierName;
     private LocalDateTime createdAt;

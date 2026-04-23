@@ -12,9 +12,19 @@ public class CustomerListResponse {
     private Long id;
     private String name;
     private String cpf;
+    private String email;
+    private String phone;
+    private String address;
 
     public static CustomerListResponse fromDto(CustomerDTO dto) {
-        return new CustomerListResponse(dto.getId(), dto.getName(), dto.getCpf());
+        return new CustomerListResponse(
+                dto.getId(),
+                dto.getName(),
+                dto.getCpf(),
+                dto.getEmail(),
+                dto.getPhone(),
+                dto.getAddress()
+        );
     }
 }
 

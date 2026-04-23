@@ -1,6 +1,6 @@
-package com.limasantos.pharmacy.api.category.entity.entity;
+package com.limasantos.pharmacy.api.category.entity;
 
-public enum ProductCategoryTypes {
+public enum ProductCategoryType {
 
     // CORREÇÃO: Todos os itens na lista, separados por vírgula
     MEDICAMENTOS("Medicamentos"),
@@ -16,7 +16,7 @@ public enum ProductCategoryTypes {
 
     private final String displayName;
 
-    ProductCategoryTypes(String displayName) {
+    ProductCategoryType(String displayName) {
         this.displayName = displayName;
     }
 

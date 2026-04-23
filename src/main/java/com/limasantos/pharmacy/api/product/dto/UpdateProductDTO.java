@@ -1,6 +1,6 @@
 package com.limasantos.pharmacy.api.product.dto;
 
-import com.limasantos.pharmacy.api.category.entity.entity.ProductCategoryTypes;
+import com.limasantos.pharmacy.api.category.entity.ProductCategoryType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -43,7 +43,7 @@ public class UpdateProductDTO {
     private String registerMS;
 
     @NotNull(message = "A categoria do produto é obrigatória")
-    private ProductCategoryTypes productCategoryType;
+    private ProductCategoryType productCategoryType;
 
     @NotNull(message = "O fornecedor é obrigatório")
     private Long supplierId;

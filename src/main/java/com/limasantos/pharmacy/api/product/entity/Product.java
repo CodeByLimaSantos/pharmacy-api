@@ -1,6 +1,6 @@
 package com.limasantos.pharmacy.api.product.entity;
 
-import com.limasantos.pharmacy.api.category.entity.entity.ProductCategoryTypes;
+import com.limasantos.pharmacy.api.category.entity.ProductCategoryType;
 import jakarta.persistence.*;
 import com.limasantos.pharmacy.api.supplier.entity.Supplier;
 import jakarta.validation.constraints.NotBlank;
@@ -44,19 +44,20 @@ public class Product {
     @NotNull(message = "É necessário indicar se o produto é controlado.")
     private Boolean controlled;
 
-    @Column(nullable = false)
-    @NotBlank
-    private String tarja;
-
     @Column(nullable = false, length = 13)
     @NotBlank
     @Pattern(regexp = "\\d{13}", message = "Registro MS deve conter exatamente 13 dígitos numéricos")
     private String registerMS;
 
+
+    @Column(nullable = false)
+    @NotBlank
+    private String tarja;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @NotNull(message = "A categoria do produto é obrigatória.")
-    private ProductCategoryTypes productCategoryType;
+    private ProductCategoryType productCategoryType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id", nullable = false)
